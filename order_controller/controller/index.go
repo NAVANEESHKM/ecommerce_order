@@ -2,9 +2,9 @@ package controller
 
 import (
 	"context"
-	"netxd_ecommerce/order_dal/interfaces"
-	models "netxd_ecommerce/order_dal/models"
-	pro "netxd_ecommerce/order_proto"
+	"ecommerce_order/order_dal/interfaces"
+	models "ecommerce_order/order_dal/models"
+	pro "ecommerce_order/order_proto"
 	"fmt"
 )
 
@@ -17,11 +17,12 @@ var (
 )
 
 func (s *RPCServer) RemoveOrderCustomer(ctx context.Context, req *pro.RemoveOrderRequest) (*pro.RemoveOrderResponse, error) {
-
+	// fmt.Println(req.CustomerId)
 	result, err := OrderService.RemoveOrder(req.CustomerId)
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(result)
 	responseCustomer := &pro.RemoveOrderResponse{
 		Status: result,
 	}
@@ -29,7 +30,7 @@ func (s *RPCServer) RemoveOrderCustomer(ctx context.Context, req *pro.RemoveOrde
 	return responseCustomer, nil
 }
 
-func (s *RPCServer) CreateOrder(ctx context.Context, req *pro.CustomerOrder) (string, error) {
+func (s *RPCServer) CreateOrder(ctx context.Context, req *pro.CustomerOrder) (*pro.CustomerResponse, error) {
 	dbInsert := &models.Orders{
 		CustomerId:    req.CustomerId,
 		PaymentId:     req.PaymentId,
@@ -86,13 +87,18 @@ func (s *RPCServer) CreateOrder(ctx context.Context, req *pro.CustomerOrder) (st
 		}
 		dbInsert.Shipping = append(dbInsert.Shipping, shipping)
 	}
-	var details interfaces.IOrder
-	_, err := details.CreateOrder(dbInsert)
+
+	value, err := OrderService.CreateOrder(dbInsert)
+	response := &pro.CustomerResponse{
+           CustomerId: value.CustomerId,
+		   
+    }
+
 	if err != nil {
-		return "failed", err
+		return nil, err
 
 	}
-	return "success", nil
+	return response , nil
 }
 func (s *RPCServer) GetOrderDetails(ctx context.Context, req *pro.GetOrderRequest) (*pro.GetOrderResponse, error) {
     customerID := req.CustomerId

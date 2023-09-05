@@ -7,7 +7,7 @@ package order_proto;
 
 message CustomerOrder{
     string Id=1;
-    string CustomerId=2;
+    int32 CustomerId=2;
     string PaymentId=3;
     string PaymentStatus=4;
     string Status=5;
@@ -51,11 +51,11 @@ message Items{
 }
 
 message CustomerResponse {
-    string Id=1;
-    string CustomerId=2;
-    string PaymentId=3;
-    string PaymentStatus=4;
-    string Status=5;
-    string Currency=6;
+    // string Id=1;
+    int32 CustomerId=1;
+    // string PaymentId=3;
+    // string PaymentStatus=4;
+    // string Status=5;
+    // string Currency=6;
 }
 

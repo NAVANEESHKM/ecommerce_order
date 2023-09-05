@@ -6,7 +6,7 @@ package config
 import (
 	"context"
 	"fmt"
-	"netxd_ecommerce/order_config/constants"
+	"ecommerce_order/order_config/constants"
 
 	//"fmt"
 	"log"

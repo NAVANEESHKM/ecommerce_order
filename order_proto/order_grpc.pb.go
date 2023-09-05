@@ -23,7 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OrderServiceClient interface {
 	RemoveOrderCustomer(ctx context.Context, in *RemoveOrderRequest, opts ...grpc.CallOption) (*RemoveOrderResponse, error)
-	Create(ctx context.Context, in *CustomerOrder, opts ...grpc.CallOption) (*CustomerResponse, error)
+	CreateOrder(ctx context.Context, in *CustomerOrder, opts ...grpc.CallOption) (*CustomerResponse, error)
 	GetOrderDetails(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*GetOrderResponse, error)
 }
 
@@ -44,9 +44,9 @@ func (c *orderServiceClient) RemoveOrderCustomer(ctx context.Context, in *Remove
 	return out, nil
 }
 
-func (c *orderServiceClient) Create(ctx context.Context, in *CustomerOrder, opts ...grpc.CallOption) (*CustomerResponse, error) {
+func (c *orderServiceClient) CreateOrder(ctx context.Context, in *CustomerOrder, opts ...grpc.CallOption) (*CustomerResponse, error) {
 	out := new(CustomerResponse)
-	err := c.cc.Invoke(ctx, "/order_proto.OrderService/Create", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/order_proto.OrderService/CreateOrder", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (c *orderServiceClient) GetOrderDetails(ctx context.Context, in *GetOrderRe
 // for forward compatibility
 type OrderServiceServer interface {
 	RemoveOrderCustomer(context.Context, *RemoveOrderRequest) (*RemoveOrderResponse, error)
-	Create(context.Context, *CustomerOrder) (*CustomerResponse, error)
+	CreateOrder(context.Context, *CustomerOrder) (*CustomerResponse, error)
 	GetOrderDetails(context.Context, *GetOrderRequest) (*GetOrderResponse, error)
 	mustEmbedUnimplementedOrderServiceServer()
 }
@@ -79,8 +79,8 @@ type UnimplementedOrderServiceServer struct {
 func (UnimplementedOrderServiceServer) RemoveOrderCustomer(context.Context, *RemoveOrderRequest) (*RemoveOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveOrderCustomer not implemented")
 }
-func (UnimplementedOrderServiceServer) Create(context.Context, *CustomerOrder) (*CustomerResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+func (UnimplementedOrderServiceServer) CreateOrder(context.Context, *CustomerOrder) (*CustomerResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateOrder not implemented")
 }
 func (UnimplementedOrderServiceServer) GetOrderDetails(context.Context, *GetOrderRequest) (*GetOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrderDetails not implemented")
@@ -116,20 +116,20 @@ func _OrderService_RemoveOrderCustomer_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
-func _OrderService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _OrderService_CreateOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CustomerOrder)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrderServiceServer).Create(ctx, in)
+		return srv.(OrderServiceServer).CreateOrder(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/order_proto.OrderService/Create",
+		FullMethod: "/order_proto.OrderService/CreateOrder",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrderServiceServer).Create(ctx, req.(*CustomerOrder))
+		return srv.(OrderServiceServer).CreateOrder(ctx, req.(*CustomerOrder))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -164,8 +164,8 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _OrderService_RemoveOrderCustomer_Handler,
 		},
 		{
-			MethodName: "Create",
-			Handler:    _OrderService_Create_Handler,
+			MethodName: "CreateOrder",
+			Handler:    _OrderService_CreateOrder_Handler,
 		},
 		{
 			MethodName: "GetOrderDetails",

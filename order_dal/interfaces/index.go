@@ -2,15 +2,15 @@
 package interfaces
 
 import(
-	models "netxd_ecommerce/order_dal/models"
+	models "ecommerce_order/order_dal/models"
 )
 
 
 
 type IOrder interface{
-	CreateOrder(input *models.Orders)(string,error)
+	CreateOrder(input *models.Orders) (models.Orders, error) 
 	RemoveOrder(Customer_ID int32) (string, error)
-	GetAllOrder(CustomerId string)([]models.Orders,error)
+	GetAllOrder(CustomerId int32) ([]models.Orders, error) 
 
 	
 }

@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"net"
 
-	pro "netxd_ecommerce/order_proto" // Import the generated Go code
-	"netxd_ecommerce/order_config/config"
-	"netxd_ecommerce/order_config/constants"
-	"netxd_ecommerce/order_dal/services"
-     "netxd_ecommerce/order_controller/controller"
+	"ecommerce_order/order_config/config"
+	"ecommerce_order/order_config/constants"
+	"ecommerce_order/order_controller/controller"
+	"ecommerce_order/order_dal/services"
+	pro "ecommerce_order/order_proto"
+
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
@@ -17,7 +18,7 @@ import (
 
 func initDatabase(client *mongo.Client) {
 	OrderCollection := config.GetCollection(client, "DataBase", "Order")
-	controller.OrderService = services.InitCustomerService(client,OrderCollection ,context.Background())
+	controller.OrderService = services.InitCustomerService(client, OrderCollection, context.Background())
 }
 
 func main() {
@@ -26,7 +27,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	initDatabase(mongoclient)	
+	initDatabase(mongoclient)
 	lis, err := net.Listen("tcp", constants.Port)
 	if err != nil {
 		fmt.Printf("Failed to listen: %v", err)

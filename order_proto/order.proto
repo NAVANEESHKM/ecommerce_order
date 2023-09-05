@@ -10,6 +10,6 @@ import "order_proto/get_order.proto";
 service OrderService{
     
     rpc RemoveOrderCustomer(RemoveOrderRequest)returns(RemoveOrderResponse);
-    rpc Create(CustomerOrder)returns(CustomerResponse);
+    rpc CreateOrder(CustomerOrder)returns(CustomerResponse);
     rpc GetOrderDetails(GetOrderRequest) returns (GetOrderResponse);
 }

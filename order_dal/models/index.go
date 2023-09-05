@@ -1,10 +1,10 @@
 package ordercartmodels
 
-import("go.mongodb.org/mongo-driver/bson/primitive")
+// import("go.mongodb.org/mongo-driver/bson/primitive")
 
 type Orders struct {
-    ID            primitive.ObjectID `json:"_id" bson:"_id"`
-    CustomerId    string             `json:"customerid" bson:"customerid"`
+    // ID            primitive.ObjectID `json:"_id" bson:"_id"`
+    CustomerId    int32            `json:"customerid" bson:"customerid"`
     PaymentId     string             `json:"payment_id" bson:"payment_id" `
     PaymentStatus string             `json:"paymentstatus" bson:"paymentstatus"`
     Status        string             `json:"status" bson:"status"`

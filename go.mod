@@ -1,4 +1,4 @@
-module netxd_ecommerce
+module ecommerce_order
 
 go 1.20
 
