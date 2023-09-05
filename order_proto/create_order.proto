@@ -12,7 +12,7 @@ message CustomerOrder{
     string PaymentStatus=4;
     string Status=5;
     string Currency=6;
-    repeated string Items=7;
+    repeated Items Items=7;
     repeated Shipping Shipping=8;
     string Carrier=9;
     string Tracking=10;

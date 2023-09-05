@@ -3,7 +3,8 @@ package controller
 import (
 	"context"
 	"ecommerce_order/order_dal/interfaces"
-	models "ecommerce_order/order_dal/models"
+	"ecommerce_order/order_dal/models"
+
 	pro "ecommerce_order/order_proto"
 	"fmt"
 )
@@ -37,9 +38,9 @@ func (s *RPCServer) CreateOrder(ctx context.Context, req *pro.CustomerOrder) (*p
 		PaymentStatus: req.PaymentStatus,
 		Status:        req.Status,
 		Currency:      req.Currency,
-		
-		Carrier:       req.Carrier,
-		Tracking:      req.Tracking,
+
+		Carrier:  req.Carrier,
+		Tracking: req.Tracking,
 	}
 
 	var protoItems []models.Items
@@ -55,11 +56,10 @@ func (s *RPCServer) CreateOrder(ctx context.Context, req *pro.CustomerOrder) (*p
 			Tax:         protoItem.Tax,
 			Total:       protoItem.Total,
 		}
-	
-		// Append the 'item' to the 'items' slice
-		dbInsert.Items= append(dbInsert.Items, item)
-	}
 
+		// Append the 'item' to the 'items' slice
+		dbInsert.Items = append(dbInsert.Items, item)
+	}
 
 	for _, protoShipping := range req.Shipping {
 		shipping := models.Shipping{}
@@ -90,29 +90,26 @@ func (s *RPCServer) CreateOrder(ctx context.Context, req *pro.CustomerOrder) (*p
 
 	value, err := OrderService.CreateOrder(dbInsert)
 	response := &pro.CustomerResponse{
-           CustomerId: value.CustomerId,
-		   
-    }
+		CustomerId: value.CustomerId,
+	}
 
 	if err != nil {
 		return nil, err
 
 	}
-	return response , nil
+	return response, nil
 }
 func (s *RPCServer) GetOrderDetails(ctx context.Context, req *pro.GetOrderRequest) (*pro.GetOrderResponse, error) {
-    customerID := req.CustomerId
+	customerID := req.CustomerId
 	orders, err := OrderService.GetAllOrder(customerID)
-    if err != nil {
-        return nil, err
-    }
-    for _,val:=range orders{
-               fmt.Println(val)
+	if err != nil {
+		return nil, err
 	}
-    // Create a response with the order status
-    response := &pro.GetOrderResponse{
-       
-    }
+	for _, val := range orders {
+		fmt.Println(val)
+	}
+	// Create a response with the order status
+	response := &pro.GetOrderResponse{}
 
-    return response, nil
+	return response, nil
 }

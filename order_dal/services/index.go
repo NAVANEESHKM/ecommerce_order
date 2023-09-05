@@ -2,6 +2,8 @@ package services
 
 import (
 	"context"
+	"strconv"
+
 	// "fmt"
 
 	"log"
@@ -9,9 +11,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 
 	"ecommerce_order/order_dal/interfaces"
-	models "ecommerce_order/order_dal/models"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"ecommerce_order/order_dal/models"
+	ecommerce_order "ecommerce_order/order_proto"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -27,35 +28,89 @@ func InitCustomerService(client *mongo.Client, collection *mongo.Collection, ctx
 	return &CustomerService{client, collection, ctx}
 }
 
-func (p *CustomerService) CreateOrder(input *models.Orders) (models.Orders, error) {
-	
-   insertResult, err1 := p.OrderCollection.InsertOne(p.ctx, &input)
-   if err1 != nil {
-   
-   }
+// func (p *CustomerService) CreateOrder(input *models.Orders) (models.Orders, error) {
 
+// 	insertResult, err1 := p.OrderCollection.InsertOne(p.ctx, &input)
+// 	if err1 != nil {
 
-   insertedID := insertResult.InsertedID.(primitive.ObjectID)
+// 	}
 
+// 	insertedID := insertResult.InsertedID.(primitive.ObjectID)
 
-   filter := bson.M{"_id": insertedID}
-   var result models.Orders
-   err := p.OrderCollection.FindOne(p.ctx, filter).Decode(&result)
-   if err != nil {
-     return result,err
-   }
-   return result,nil
+// 	filter := bson.M{"_id": insertedID}
+// 	var result models.Orders
+// 	err := p.OrderCollection.FindOne(p.ctx, filter).Decode(&result)
+// 	if err != nil {
+// 		return result, err
+// 	}
+// 	return result, nil
+// }
+
+func (p *CustomerService) CreateOrder(input *models.Orders) (*ecommerce_order.CustomerResponse, error) {
+	for _, item := range input.Items {
+		// available, err := p.checkItemAvailability(p.ctx, "SKU001", item.Quantity)
+		aa, _ := strconv.ParseFloat(item.Quantity, 64)
+		filter := bson.M{"sku": item.Sku, "quantity": bson.M{"$gte": aa}}
+		result := p.client.Database("inventory_SKU").Collection("items").FindOne(p.ctx, filter)
+        if result.Err() != nil {
+            if result.Err() == mongo.ErrNoDocuments {
+                return nil,result.Err()
+            }
+            return nil, result.Err()
+        }
+		// if err != nil {
+		// 	return nil, err
+		// }
+
+		// if !available {
+		// 	return nil, fmt.Errorf("Item with SKU %s is not available in sufficient quantity", item.Sku)
+		// }
+	}
+	order := &models.Orders{
+		// ID:            primitive.NewObjectID(),
+		CustomerId:    input.CustomerId,
+		PaymentId:     input.PaymentId,
+		PaymentStatus: input.PaymentStatus,
+		Status:        input.Status,
+		Currency:      input.Currency,
+		Items:         input.Items,
+		Shipping:      input.Shipping,
+		Carrier:       input.Carrier,
+		Tracking:      input.Tracking,
+	}
+
+	_, err := p.OrderCollection.InsertOne(p.ctx, order)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
+
 }
+// func (p *CustomerService) checkItemAvailability(ctx context.Context, sku string, quantity string) (bool, error) {
+// 	aa, _ := strconv.ParseFloat(quantity, 64)
+// 	filter := bson.M{"sku": sku, "quantity": bson.M{"$gte": aa}}
+// 	// filter := bson.M{"sku": sku}
+
+// 	result := p.client.Database("inventory_SKU").Collection("items").FindOne(ctx, filter)
+// 	if result.Err() != nil {
+// 		if result.Err() == mongo.ErrNoDocuments {
+// 			return false, nil
+// 		}
+// 		return false, result.Err()
+// 	}
+// 	return true, nil
+// }
 
 func (p *CustomerService) RemoveOrder(Customer_ID int32) (string, error) {
-    // fmt.Println(Customer_ID)
+	// fmt.Println(Customer_ID)
 	filter := bson.M{"customerid": Customer_ID} // Replace with your filter criteria.
 
 	// Delete the document that matches the filter.
-	_, err := p.OrderCollection.DeleteOne(p.ctx,filter)
+	_, err := p.OrderCollection.DeleteOne(p.ctx, filter)
 
 	if err != nil {
-        // fmt.Println(Customer_ID)
+		// fmt.Println(Customer_ID)
 		return "Unable to delete", err
 	}
 	return "Deleted Successfully", nil
