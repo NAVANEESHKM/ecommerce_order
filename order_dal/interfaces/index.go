@@ -10,7 +10,7 @@ import(
 type IOrder interface{
 	CreateOrder(input *models.Orders)(string,error)
 	RemoveOrder(Customer_ID int32) (string, error)
-	GetAllOrder(Customer_ID int)(*models.Orders,error)
+	GetAllOrder(CustomerId string)([]models.Orders,error)
 
 	
 }

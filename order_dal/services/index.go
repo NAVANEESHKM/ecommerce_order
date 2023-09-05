@@ -49,7 +49,7 @@ func (p *CustomerService) RemoveOrder(Customer_ID int32) (string, error) {
 	return "Deleted Successfully", nil
 }
 
-func (p*CustomerService) GetAllOrder(CustomerId string)(*models.Orders,error){
+func (p*CustomerService) GetAllOrder(CustomerId string)([]models.Orders,error){
 	filter := bson.M{"customerid":CustomerId }
 
     // Execute the find query.
@@ -73,5 +73,5 @@ func (p*CustomerService) GetAllOrder(CustomerId string)(*models.Orders,error){
     if err := cursor.Err(); err != nil {
         log.Fatal(err)
     }
-	return &results,nil
+	return results,nil
 }

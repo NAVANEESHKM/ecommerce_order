@@ -40,6 +40,16 @@ message Origin {
     string Zip=6;
 }
 
+message Items{
+    string Sku=1;
+    string Quantity=2;
+    float Price=3;
+    float Discount=4;
+    float PreTaxTotal=5;
+    float Tax=6;
+    float Total=7;
+}
+
 message CustomerResponse {
     string Id=1;
     string CustomerId=2;

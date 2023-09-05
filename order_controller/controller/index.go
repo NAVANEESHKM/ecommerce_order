@@ -5,6 +5,7 @@ import (
 	"netxd_ecommerce/order_dal/interfaces"
 	models "netxd_ecommerce/order_dal/models"
 	pro "netxd_ecommerce/order_proto"
+	"fmt"
 )
 
 type RPCServer struct {
@@ -17,7 +18,7 @@ var (
 
 func (s *RPCServer) RemoveOrderCustomer(ctx context.Context, req *pro.RemoveOrderRequest) (*pro.RemoveOrderResponse, error) {
 
-	result, err := OrderService.RemoveOrder(req.Customer_ID)
+	result, err := OrderService.RemoveOrder(req.CustomerId)
 	if err != nil {
 		return nil, err
 	}
@@ -35,10 +36,30 @@ func (s *RPCServer) CreateOrder(ctx context.Context, req *pro.CustomerOrder) (st
 		PaymentStatus: req.PaymentStatus,
 		Status:        req.Status,
 		Currency:      req.Currency,
-		Items:         req.Items,
+		
 		Carrier:       req.Carrier,
 		Tracking:      req.Tracking,
 	}
+
+	var protoItems []models.Items
+
+	// Iterate over the source data (protoItems) and append to the 'items' slice
+	for _, protoItem := range protoItems {
+		item := models.Items{
+			Sku:         protoItem.Sku,
+			Quantity:    protoItem.Quantity,
+			Price:       protoItem.Price,
+			Discount:    protoItem.Discount,
+			PreTaxTotal: protoItem.PreTaxTotal,
+			Tax:         protoItem.Tax,
+			Total:       protoItem.Total,
+		}
+	
+		// Append the 'item' to the 'items' slice
+		dbInsert.Items= append(dbInsert.Items, item)
+	}
+
+
 	for _, protoShipping := range req.Shipping {
 		shipping := models.Shipping{}
 		for _, protoAddress := range protoShipping.Address {
@@ -74,14 +95,18 @@ func (s *RPCServer) CreateOrder(ctx context.Context, req *pro.CustomerOrder) (st
 	return "success", nil
 }
 func (s *RPCServer) GetOrderDetails(ctx context.Context, req *pro.GetOrderRequest) (*pro.GetOrderResponse, error) {
-	result, err := OrderService.GetAllOrder(req.CustomerId)
-	if err != nil {
-		return nil, err
+    customerID := req.CustomerId
+	orders, err := OrderService.GetAllOrder(customerID)
+    if err != nil {
+        return nil, err
+    }
+    for _,val:=range orders{
+               fmt.Println(val)
 	}
-	responseCustomer := &pro.RemoveOrderResponse{
-		Status: result,
-	}
+    // Create a response with the order status
+    response := &pro.GetOrderResponse{
+       
+    }
 
-	return responseCustomer, nil
-
+    return response, nil
 }
