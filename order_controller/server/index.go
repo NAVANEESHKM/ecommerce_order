@@ -18,7 +18,8 @@ import (
 
 func initDatabase(client *mongo.Client) {
 	OrderCollection := config.GetCollection(client, "DataBase", "Order")
-	controller.OrderService = services.InitCustomerService(client, OrderCollection, context.Background())
+	InventoryCollection:=config.GetCollection(client,"inventory_SKU","items")
+	controller.OrderService = services.InitCustomerService(client, OrderCollection,InventoryCollection, context.Background())
 }
 
 func main() {

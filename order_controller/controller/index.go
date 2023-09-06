@@ -43,18 +43,18 @@ func (s *RPCServer) CreateOrder(ctx context.Context, req *pro.CustomerOrder) (*p
 		Tracking: req.Tracking,
 	}
 
-	var protoItems []models.Items
+	// var protoItems []models.Items
 
 	// Iterate over the source data (protoItems) and append to the 'items' slice
-	for _, protoItem := range protoItems {
+	for _, protoItem := range req.Items {
 		item := models.Items{
 			Sku:         protoItem.Sku,
 			Quantity:    protoItem.Quantity,
-			Price:       protoItem.Price,
-			Discount:    protoItem.Discount,
-			PreTaxTotal: protoItem.PreTaxTotal,
-			Tax:         protoItem.Tax,
-			Total:       protoItem.Total,
+			
+			// Discount:    protoItem.Discount,
+			// PreTaxTotal: protoItem.PreTaxTotal,
+			// Tax:         protoItem.Tax,
+			// Total:       protoItem.Total,
 		}
 
 		// Append the 'item' to the 'items' slice
@@ -112,4 +112,57 @@ func (s *RPCServer) GetOrderDetails(ctx context.Context, req *pro.GetOrderReques
 	response := &pro.GetOrderResponse{}
 
 	return response, nil
+}
+
+
+func (s*RPCServer) UpdateOrderDetails(ctx context.Context,req *pro.UpdateOrderRequest)(*pro.UpdateOrderResponse, error){
+	dbInsert := &models.UpdateDetailsModel{
+		Customer_ID:  req.Customer_ID,
+		Sku:req.Sku,
+		Quantity: req.Quantity,
+
+	}
+
+	
+
+	// Iterate over the source data (protoItems) and append to the 'items' slice
+	
+
+
+	value, err := OrderService.UpdateOrder(dbInsert)
+	response := &pro.UpdateOrderResponse{
+		Status: value,
+	}
+
+	if err != nil {
+		return nil, err
+
+	}
+	return response,nil
+}
+
+func (s*RPCServer) AddOrderDetails(ctx context.Context,req *pro.UpdateOrderRequest)(*pro.UpdateOrderResponse, error){
+	dbInsert := &models.UpdateDetailsModel{
+		Customer_ID:  req.Customer_ID,
+		Sku:req.Sku,
+		Quantity: req.Quantity,
+
+	}
+
+	
+
+	// Iterate over the source data (protoItems) and append to the 'items' slice
+	
+
+
+	value, err := OrderService.AddOrder(dbInsert)
+	response := &pro.UpdateOrderResponse{
+		Status: value,
+	}
+
+	if err != nil {
+		return nil, err
+
+	}
+	return response,nil
 }

@@ -2,105 +2,85 @@ package services
 
 import (
 	"context"
-	"strconv"
+	"fmt"
 
 	// "fmt"
-
+	"strconv"
 	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"ecommerce_order/order_dal/interfaces"
 	"ecommerce_order/order_dal/models"
-	ecommerce_order "ecommerce_order/order_proto"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type CustomerService struct {
-	client          *mongo.Client
-	OrderCollection *mongo.Collection
-
-	ctx context.Context
+	client              *mongo.Client
+	OrderCollection     *mongo.Collection
+	InventoryCollection *mongo.Collection
+	ctx                 context.Context
 }
 
-func InitCustomerService(client *mongo.Client, collection *mongo.Collection, ctx context.Context) interfaces.IOrder {
-	return &CustomerService{client, collection, ctx}
+func InitCustomerService(client *mongo.Client, collection1 *mongo.Collection, collection2 *mongo.Collection, ctx context.Context) interfaces.IOrder {
+	return &CustomerService{client, collection1, collection2, ctx}
 }
 
-// func (p *CustomerService) CreateOrder(input *models.Orders) (models.Orders, error) {
-
-// 	insertResult, err1 := p.OrderCollection.InsertOne(p.ctx, &input)
-// 	if err1 != nil {
-
-// 	}
-
-// 	insertedID := insertResult.InsertedID.(primitive.ObjectID)
-
-// 	filter := bson.M{"_id": insertedID}
-// 	var result models.Orders
-// 	err := p.OrderCollection.FindOne(p.ctx, filter).Decode(&result)
-// 	if err != nil {
-// 		return result, err
-// 	}
-// 	return result, nil
-// }
-
-func (p *CustomerService) CreateOrder(input *models.Orders) (*ecommerce_order.CustomerResponse, error) {
-	for _, item := range input.Items {
-		// available, err := p.checkItemAvailability(p.ctx, "SKU001", item.Quantity)
-		aa, _ := strconv.ParseFloat(item.Quantity, 64)
-		filter := bson.M{"sku": item.Sku, "quantity": bson.M{"$gte": aa}}
-		result := p.client.Database("inventory_SKU").Collection("items").FindOne(p.ctx, filter)
-        if result.Err() != nil {
-            if result.Err() == mongo.ErrNoDocuments {
-                return nil,result.Err()
-            }
-            return nil, result.Err()
-        }
-		// if err != nil {
-		// 	return nil, err
-		// }
-
-		// if !available {
-		// 	return nil, fmt.Errorf("Item with SKU %s is not available in sufficient quantity", item.Sku)
-		// }
-	}
-	order := &models.Orders{
-		// ID:            primitive.NewObjectID(),
-		CustomerId:    input.CustomerId,
-		PaymentId:     input.PaymentId,
-		PaymentStatus: input.PaymentStatus,
-		Status:        input.Status,
-		Currency:      input.Currency,
-		Items:         input.Items,
-		Shipping:      input.Shipping,
-		Carrier:       input.Carrier,
-		Tracking:      input.Tracking,
-	}
-
-	_, err := p.OrderCollection.InsertOne(p.ctx, order)
-	if err != nil {
-		return nil, err
-	}
-
-	return nil, nil
-
+func (p *CustomerService) CreateOrder(input *models.Orders) (models.Orders, error) {
+	var basePrice float32
+	var discountvalue float32
+	for _, val := range input.Items {
+		filter := bson.M{"sku": val.Sku}
+		inventoryResult := p.InventoryCollection.FindOne(p.ctx, filter)
+	    var inventoryDocument bson.M
+    if err := inventoryResult.Decode(&inventoryDocument); err != nil {
+    // Handle error
+    }
+	price := inventoryDocument["price"].(bson.M)
+	
+    // basePrice = price["base"].(float32)
+	price64 := price["base"].(float64)
+	discount:=price["discount"].(float64)
+    basePrice = float32(price64)
+    discountvalue =float32(discount)
+	
 }
-// func (p *CustomerService) checkItemAvailability(ctx context.Context, sku string, quantity string) (bool, error) {
-// 	aa, _ := strconv.ParseFloat(quantity, 64)
-// 	filter := bson.M{"sku": sku, "quantity": bson.M{"$gte": aa}}
-// 	// filter := bson.M{"sku": sku}
 
-// 	result := p.client.Database("inventory_SKU").Collection("items").FindOne(ctx, filter)
-// 	if result.Err() != nil {
-// 		if result.Err() == mongo.ErrNoDocuments {
-// 			return false, nil
-// 		}
-// 		return false, result.Err()
-// 	}
-// 	return true, nil
-// }
+// input.Items[0].Quantity
+num, err := strconv.ParseFloat(input.Items[0].Quantity, 32) // Convert to float32
+if err != nil {
+	fmt.Println("Conversion error:", err)
+	
+}
+num32 := float32(num)
+
+
+input.Items[0].Price=num32*basePrice
+input.Items[0].Discount=input.Items[0].Price-((discountvalue/100)*100)
+input.Items[0].Total=input.Items[0].Discount
+
+
+// Access the "price" field and then the "base" field
+
+
+	insertResult, err1 := p.OrderCollection.InsertOne(p.ctx, &input)
+	if err1 != nil {
+
+	}
+
+	insertedID := insertResult.InsertedID.(primitive.ObjectID)
+
+	filter := bson.M{"_id": insertedID}
+	var result models.Orders
+	err2 := p.OrderCollection.FindOne(p.ctx, filter).Decode(&result)
+	if err2 != nil {
+		return result, err2
+	}
+	fmt.Println("Success")
+	return result, nil
+}
 
 func (p *CustomerService) RemoveOrder(Customer_ID int32) (string, error) {
 	// fmt.Println(Customer_ID)
@@ -142,3 +122,116 @@ func (p *CustomerService) GetAllOrder(CustomerId int32) ([]models.Orders, error)
 	}
 	return results, nil
 }
+
+func (p *CustomerService) UpdateOrder(input *models.UpdateDetailsModel) (string, error) {
+	var basePrice float32
+	var discountvalue float32
+		filter := bson.M{"sku": input.Sku}
+		inventoryResult := p.InventoryCollection.FindOne(p.ctx, filter)
+	    var inventoryDocument bson.M
+    if err := inventoryResult.Decode(&inventoryDocument); err != nil {
+    // Handle error
+    }
+	price := inventoryDocument["price"].(bson.M)
+    // basePrice = price["base"].(float32)
+	price64 := price["base"].(float64)
+	discount:=price["discount"].(float64)
+    discountvalue =float32(discount)
+    basePrice = float32(price64)
+	fmt.Println("The Price is ",basePrice)
+
+// input.Items[0].Quantity
+num, err := strconv.ParseFloat(input.Quantity, 32) // Convert to float32
+if err != nil {
+	fmt.Println("Conversion error:", err)
+	
+}
+num32 := float32(num)
+
+fmt.Println("The quantity is ",num32)
+fmt.Println("The two values are ",num32," ",basePrice)
+input.Price=num32*basePrice
+input.Discount=input.Price-((discountvalue/100)*100)
+input.Total=input.Discount
+	filter1 := bson.M{"customerid": input.Customer_ID}
+	update := bson.M{
+		"$set": bson.M{
+
+			"items": []models.Items{
+				{
+					Sku:      input.Sku,
+					Quantity: input.Quantity,
+                    Price:input.Price,
+					Discount: input.Discount,
+					Total: input.Total,
+				},
+				// Add more items as needed
+			},
+		},
+	}
+	_, err1 := p.OrderCollection.UpdateOne(context.Background(), filter1, update)
+	if err1 != nil {
+		return "updation failed", err1
+	}
+	return "Updation Success", nil
+
+}
+
+
+func (p *CustomerService) AddOrder(input *models.UpdateDetailsModel) (string, error) {
+	var basePrice float32
+	var discountvalue float32
+		filter := bson.M{"sku": input.Sku}
+		inventoryResult := p.InventoryCollection.FindOne(p.ctx, filter)
+	    var inventoryDocument bson.M
+    if err := inventoryResult.Decode(&inventoryDocument); err != nil {
+    // Handle error
+    }
+	price := inventoryDocument["price"].(bson.M)
+    // basePrice = price["base"].(float32)
+	price64 := price["base"].(float64)
+	discount:=price["discount"].(float64)
+    discountvalue =float32(discount)
+    basePrice = float32(price64)
+	fmt.Println("The Price is ",basePrice)
+
+// input.Items[0].Quantity
+num, err := strconv.ParseFloat(input.Quantity, 32) // Convert to float32
+if err != nil {
+	fmt.Println("Conversion error:", err)
+	
+}
+num32 := float32(num)
+
+fmt.Println("The quantity is ",num32)
+fmt.Println("The two values are ",num32," ",basePrice)
+input.Price=num32*basePrice
+input.Discount=input.Price-((discountvalue/100)*100)
+input.Total=input.Discount
+itemsToAdd := []models.Items{
+    {
+        Sku: input.Sku,
+        Quantity: input.Quantity,
+        Price:    input.Price,
+        Discount:input.Discount,
+        Total:    input.Total,
+    },
+    
+    // Add more items in the desired order
+}
+filter1 := bson.M{"customerid": input.Customer_ID}
+update := bson.M{
+    "$push": bson.M{
+        "items": bson.M{
+            "$each": itemsToAdd, // Add the items in the specified order
+        },
+    },
+}
+	_, err1 := p.OrderCollection.UpdateOne(context.Background(), filter1, update)
+	if err1 != nil {
+		return "updation failed", err1
+	}
+	return "Updation Success", nil
+
+}
+

@@ -19,15 +19,14 @@ type Shipping struct {
     Address []Address `json:"address" bson:"address"`
     Origin  []Origin  `json:"origin" bson:"origin"`
 }
-
 type Items struct{
 	Sku string `json:"sku" bson:"sku"`
 	Quantity string `json:"quantity" bson:"quantity"`
-	Price float64 `json:"price" bson:"price"`
-	Discount float64 `json:"discount" bson:"discount"`
-	PreTaxTotal float64 `json:"pretaxtotal" bson:"pretaxtotal"`
-    Tax float64 `json:"tax" bson:"tax"`
-	Total float64 `json:"total" bson:"total"`
+	Price float32 `json:"price" bson:"price"`
+	Discount float32 `json:"discount" bson:"discount"`
+	PreTaxTotal float32 `json:"pretaxtotal" bson:"pretaxtotal"`
+    Tax float32 `json:"tax" bson:"tax"`
+	Total float32 `json:"total" bson:"total"`
 }
 
 type Address struct {
@@ -45,4 +44,14 @@ type Origin struct {
     State   string `json:"state" bson:"state"`
     Country string `json:"country" bson:"country"`
     Zip     string `json:"zip" bson:"zip"`
+}
+type UpdateDetailsModel struct{
+        Customer_ID int32 `json:"customer_id" bson:"customer_id"`
+        Sku string `json:"sku" bson:"sku"`
+        Quantity string `json:"quantity" bson:"quantity"`
+        Price float32 `json:"price" bson:"price"`
+        Discount float32 `json:"discount" bson:"discount"`
+	    PreTaxTotal float32 `json:"pretaxtotal" bson:"pretaxtotal"`
+        Tax float32 `json:"tax" bson:"tax"`
+	    Total float32 `json:"total" bson:"total"`
 }

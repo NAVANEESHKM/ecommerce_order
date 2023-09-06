@@ -21,53 +21,103 @@ func main() {
 	defer conn.Close()
 
 	client := pb.NewOrderServiceClient(conn)
-	_, err1 := client.CreateOrder(context.Background(), &pb.CustomerOrder{
-		CustomerId:    33,
-		PaymentId:     "your_payment_id",
-		PaymentStatus: "your_payment_status",
-		Status:        "your_status",
-		Currency:      "your_currency",
-		Items:[]*pb.Items{
-			{
-				Sku:         "SKU001",
-				Quantity:    "5",
-				Price:       12.34, // Your price value
-				Discount:    5.67,  // Your discount value
-				PreTaxTotal: 18.01, // Your pre-tax total value
-				Tax:         1.23,  // Your tax value
-				Total:       19.24, // Your total value
-			},
-			// Add more items if needed
-		},
-		Shipping: []*pb.Shipping{
-			{
-			   Address:[]*pb.Address{
-				{
-                    Street1: "Anna Nagar",
-					Street2: "Gandhi nagar",
-					City: "Chennai",
-					State: "TamilNadu",
-					Country: "India",
-					Zip: "56456",
-				},
+	// _, err1 := client.CreateOrder(context.Background(), &pb.CustomerOrder{
+	// 	CustomerId:    99,
+	// 	PaymentId:     "your_payment_id",
+	// 	PaymentStatus: "your_payment_status",
+	// 	Status:        "your_status",
+	// 	Currency:      "your_currency",
+	// 	Items:[]*pb.Items{
+	// 		{
+	// 			Sku:         "SKU001",
+	// 			Quantity:    "5",
+				
+	// 			// Discount:    5.67,  // Your discount value
+	// 			// PreTaxTotal: 18.01, // Your pre-tax total value
+	// 			// Tax:         1.23,  // Your tax value
+	// 			// Total:       19.24, // Your total value
+	// 		},
+	// 		// Add more items if needed
+	// 	},
+	// 	Shipping: []*pb.Shipping{
+	// 		{
+	// 		   Address:[]*pb.Address{
+	// 			{
+    //                 Street1: "Anna Nagar",
+	// 				Street2: "Gandhi nagar",
+	// 				City: "Chennai",
+	// 				State: "TamilNadu",
+	// 				Country: "India",
+	// 				Zip: "56456",
+	// 			},
 
-			   },
-			   Origin: []*pb.Origin{
-				{
-					Street1: "Anna Nagar",
-					Street2: "Gandhi nagar",
-					City: "Chennai",
-					State: "TamilNadu",
-					Country: "India",
-					Zip: "56456",
-				},
-			   },
-			},
+	// 		   },
+	// 		   Origin: []*pb.Origin{
+	// 			{
+	// 				Street1: "Anna Nagar",
+	// 				Street2: "Gandhi nagar",
+	// 				City: "Chennai",
+	// 				State: "TamilNadu",
+	// 				Country: "India",
+	// 				Zip: "56456",
+	// 			},
+	// 		   },
+	// 		},
 
-		},
-		Carrier:  "your_carrier",
-		Tracking: "your_tracking",
-	})
+	// 	},
+	// 	Carrier:  "your_carrier",
+	// 	Tracking: "your_tracking",
+	// })
+
+
+
+	// _, err1 := client.UpdateOrderDetails(context.Background(), &pb.UpdateOrderRequest{
+	// 	       Customer_ID:    99,
+	// 			Sku:         "SKU001",
+	// 			Quantity:    "7",
+		
+	// 		// Add more items if needed
+	// 	})
+
+
+		_, err1 := client.AddOrderDetails(context.Background(), &pb.UpdateOrderRequest{
+			Customer_ID:    99,
+			 Sku:         "SKU002",
+			 Quantity:    "7",
+	 
+		 // Add more items if needed
+	 })
+
+
+
+	// 	// Shipping: []*pb.Shipping{
+			// {
+			//    Address:[]*pb.Address{
+			// 	{
+            //         Street1: "Anna Nagar",
+			// 		Street2: "Gandhi nagar",
+			// 		City: "Chennai",
+			// 		State: "TamilNadu",
+			// 		Country: "India",
+			// 		Zip: "56456",
+			// 	},
+
+			//    },
+			//    Origin: []*pb.Origin{
+			// 	{
+			// 		Street1: "Anna Nagar",
+			// 		Street2: "Gandhi nagar",
+			// 		City: "Chennai",
+			// 		State: "TamilNadu",
+			// 		Country: "India",
+			// 		Zip: "56456",
+			// 	},
+			//    },
+			// },
+
+		// },
+			//)
+
 
 	// _, err1 := client.RemoveOrderCustomer(context.Background(), &pb.RemoveOrderRequest{
 	// 	CustomerId:345,
