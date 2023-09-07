@@ -24,7 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type OrderServiceClient interface {
 	RemoveOrderCustomer(ctx context.Context, in *RemoveOrderRequest, opts ...grpc.CallOption) (*RemoveOrderResponse, error)
 	CreateOrder(ctx context.Context, in *CustomerOrder, opts ...grpc.CallOption) (*CustomerResponse, error)
-	GetOrderDetails(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*GetOrderResponse, error)
+	GetOrderDetails(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*CustomerOrder, error)
 	UpdateOrderDetails(ctx context.Context, in *UpdateOrderRequest, opts ...grpc.CallOption) (*UpdateOrderResponse, error)
 	AddOrderDetails(ctx context.Context, in *UpdateOrderRequest, opts ...grpc.CallOption) (*UpdateOrderResponse, error)
 }
@@ -55,8 +55,8 @@ func (c *orderServiceClient) CreateOrder(ctx context.Context, in *CustomerOrder,
 	return out, nil
 }
 
-func (c *orderServiceClient) GetOrderDetails(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*GetOrderResponse, error) {
-	out := new(GetOrderResponse)
+func (c *orderServiceClient) GetOrderDetails(ctx context.Context, in *GetOrderRequest, opts ...grpc.CallOption) (*CustomerOrder, error) {
+	out := new(CustomerOrder)
 	err := c.cc.Invoke(ctx, "/order_proto.OrderService/GetOrderDetails", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func (c *orderServiceClient) AddOrderDetails(ctx context.Context, in *UpdateOrde
 type OrderServiceServer interface {
 	RemoveOrderCustomer(context.Context, *RemoveOrderRequest) (*RemoveOrderResponse, error)
 	CreateOrder(context.Context, *CustomerOrder) (*CustomerResponse, error)
-	GetOrderDetails(context.Context, *GetOrderRequest) (*GetOrderResponse, error)
+	GetOrderDetails(context.Context, *GetOrderRequest) (*CustomerOrder, error)
 	UpdateOrderDetails(context.Context, *UpdateOrderRequest) (*UpdateOrderResponse, error)
 	AddOrderDetails(context.Context, *UpdateOrderRequest) (*UpdateOrderResponse, error)
 	mustEmbedUnimplementedOrderServiceServer()
@@ -104,7 +104,7 @@ func (UnimplementedOrderServiceServer) RemoveOrderCustomer(context.Context, *Rem
 func (UnimplementedOrderServiceServer) CreateOrder(context.Context, *CustomerOrder) (*CustomerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateOrder not implemented")
 }
-func (UnimplementedOrderServiceServer) GetOrderDetails(context.Context, *GetOrderRequest) (*GetOrderResponse, error) {
+func (UnimplementedOrderServiceServer) GetOrderDetails(context.Context, *GetOrderRequest) (*CustomerOrder, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrderDetails not implemented")
 }
 func (UnimplementedOrderServiceServer) UpdateOrderDetails(context.Context, *UpdateOrderRequest) (*UpdateOrderResponse, error) {

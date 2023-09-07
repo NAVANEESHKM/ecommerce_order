@@ -5,7 +5,6 @@ import (
 	"ecommerce_order/order_dal/interfaces"
 	"ecommerce_order/order_dal/models"
 	"fmt"
-	"log"
 
 	// "strconv"
 
@@ -78,27 +77,15 @@ func (p *CustomerService) RemoveOrder(Customer_ID string) (string, error) {
 	}
 	return "Deleted Successfully", nil
 }
-func (p *CustomerService) GetAllOrder(CustomerId string) ([]models.Orders, error) {
+func (p *CustomerService) GetAllOrder(CustomerId string) (*models.Orders, error) {
 	filter := bson.M{"customerid": CustomerId}
-	cursor, err := p.OrderCollection.Find(context.Background(), filter)
+	var res *models.Orders
+	result := p.OrderCollection.FindOne(p.ctx, filter)
+	err := result.Decode(&res)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	defer cursor.Close(context.Background())
-	var results []models.Orders
-	for cursor.Next(context.Background()) {
-		var result models.Orders
-		err := cursor.Decode(&result)
-		if err != nil {
-			log.Fatal(err)
-		}
-		results = append(results, result)
-	}
-
-	if err := cursor.Err(); err != nil {
-		log.Fatal(err)
-	}
-	return results, nil
+	return res, nil
 }
 
 func (p *CustomerService) UpdateOrder(input *models.UpdateDetailsModel) (string, error) {
@@ -125,21 +112,21 @@ func (p *CustomerService) UpdateOrder(input *models.UpdateDetailsModel) (string,
 	input.Price = input.Quantity * basePrice
 	input.Discount = discountvalue
 	input.PreTaxTotal = input.Price - ((discountvalue / 100) * 100)
-	total =input.PreTaxTotal
+	total = input.PreTaxTotal
 	input.TotalAmount = total
 	input.Total = input.PreTaxTotal
 	filter1 := bson.M{"customerid": input.Customer_ID}
 	update := bson.M{
 		"$set": bson.M{
-			"totalamount":models.Orders{
-				 TotalAmount: input.TotalAmount,
+			"totalamount": models.Orders{
+				TotalAmount: input.TotalAmount,
 			},
 			"items": []models.Items{
 				{
-					Sku: input.Sku,
-					Quantity: input.Quantity,
-					Price: input.Price,
-					Discount: input.Discount,
+					Sku:         input.Sku,
+					Quantity:    input.Quantity,
+					Price:       input.Price,
+					Discount:    input.Discount,
 					PreTaxTotal: total,
 					Total:       input.Total,
 				},
@@ -180,7 +167,7 @@ func (p *CustomerService) AddOrder(input *models.UpdateDetailsModel) (string, er
 	input.Price = input.Quantity * basePrice
 	input.Discount = discountvalue
 	input.PreTaxTotal = input.Price - ((discountvalue / 100) * 100)
-	total = total + input.PreTaxTotal+input.TotalAmount
+	total = total + input.PreTaxTotal + input.TotalAmount
 	input.TotalAmount = total
 	input.Total = input.PreTaxTotal
 	itemsToAdd := []models.Items{
@@ -190,19 +177,17 @@ func (p *CustomerService) AddOrder(input *models.UpdateDetailsModel) (string, er
 			Price:    input.Price,
 			Discount: input.Discount,
 			Total:    input.Total,
-
 		},
 	}
 	filter1 := bson.M{"customerid": input.Customer_ID}
 	update := bson.M{
-		
+
 		"$push": bson.M{
 			"items": bson.M{
 				"$each": itemsToAdd,
 			},
 		},
-		
-}
+	}
 	_, err1 := p.OrderCollection.UpdateOne(context.Background(), filter1, update)
 	if err1 != nil {
 		return "updation failed", err1
