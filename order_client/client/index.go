@@ -5,15 +5,20 @@ import (
 	// "fmt"
 
 	"log"
-
+	// "net/http"
 	// models "ecommerce_order/order_dal/models"
 	pb "ecommerce_order/order_proto"
-
+	"go.mongodb.org/mongo-driver/mongo"
+	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 )
-
+var (
+	mongoclient *mongo.Client
+	ctx         context.Context
+	server      *gin.Engine
+)
 func main() {
-
+    // r := gin.Default()
 	conn, err := grpc.Dial("localhost:5001", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Failed to connect: %v", err)
@@ -22,20 +27,24 @@ func main() {
 
 	client := pb.NewOrderServiceClient(conn)
 	// _, err1 := client.CreateOrder(context.Background(), &pb.CustomerOrder{
-	// 	CustomerId:    99,
+	// 	CustomerId:    97,
 	// 	PaymentId:     "your_payment_id",
 	// 	PaymentStatus: "your_payment_status",
 	// 	Status:        "your_status",
 	// 	Currency:      "your_currency",
 	// 	Items:[]*pb.Items{
 	// 		{
-	// 			Sku:         "SKU001",
+	// 			Sku:         "SKU002",
 	// 			Quantity:    "5",
 				
 	// 			// Discount:    5.67,  // Your discount value
 	// 			// PreTaxTotal: 18.01, // Your pre-tax total value
 	// 			// Tax:         1.23,  // Your tax value
 	// 			// Total:       19.24, // Your total value
+	// 		},
+	// 		{
+	// 			Sku:         "SKU001",
+	// 			Quantity:    "3",
 	// 		},
 	// 		// Add more items if needed
 	// 	},
@@ -68,20 +77,31 @@ func main() {
 	// 	Carrier:  "your_carrier",
 	// 	Tracking: "your_tracking",
 	// })
-
-
+	// r.POST("/create", func(c *gin.Context) {
+	// 	var request pb.CustomerOrder
+	// 	if err := c.ShouldBindJSON(&request); err != nil {
+	// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	// 		return
+	// 	}
+	// 	response, err := client.CreateOrder(c.Request.Context(), &request)
+	// 	if err != nil {
+	// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	// 		return
+	// 	}
+	// 	c.JSON(http.StatusOK, gin.H{"value": response})
+	// })
 
 	// _, err1 := client.UpdateOrderDetails(context.Background(), &pb.UpdateOrderRequest{
-	// 	       Customer_ID:    99,
+	// 	       Customer_ID:    97,
 	// 			Sku:         "SKU001",
-	// 			Quantity:    "7",
+	// 			Quantity:    "2",
 		
 	// 		// Add more items if needed
 	// 	})
 
 
 		_, err1 := client.AddOrderDetails(context.Background(), &pb.UpdateOrderRequest{
-			Customer_ID:    99,
+			Customer_ID:    97,
 			 Sku:         "SKU002",
 			 Quantity:    "7",
 	 
@@ -129,5 +149,5 @@ func main() {
 	if err1 != nil {
 		log.Fatalf("Failed to call SayHello: %v", err1)
 	}
-
+	// r.Run(":8080")
 }

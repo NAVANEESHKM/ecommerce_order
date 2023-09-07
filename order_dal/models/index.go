@@ -1,9 +1,6 @@
 package models
 
-// import("go.mongodb.org/mongo-driver/bson/primitive")
-
 type Orders struct {
-    // ID            primitive.ObjectID `json:"_id" bson:"_id"`
     CustomerId    int32            `json:"customerid" bson:"customerid"`
     PaymentId     string             `json:"payment_id" bson:"payment_id" `
     PaymentStatus string             `json:"paymentstatus" bson:"paymentstatus"`

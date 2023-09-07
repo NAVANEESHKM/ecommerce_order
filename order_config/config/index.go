@@ -1,14 +1,9 @@
-// This file is to define the connection strings
-// Port
-// Datbase conenctivity
 package config
 
 import (
 	"context"
 	"fmt"
 	"ecommerce_order/order_config/constants"
-
-	//"fmt"
 	"log"
 	"time"
 

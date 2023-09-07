@@ -18,7 +18,6 @@ var (
 )
 
 func (s *RPCServer) RemoveOrderCustomer(ctx context.Context, req *pro.RemoveOrderRequest) (*pro.RemoveOrderResponse, error) {
-	// fmt.Println(req.CustomerId)
 	result, err := OrderService.RemoveOrder(req.CustomerId)
 	if err != nil {
 		return nil, err
@@ -42,22 +41,11 @@ func (s *RPCServer) CreateOrder(ctx context.Context, req *pro.CustomerOrder) (*p
 		Carrier:  req.Carrier,
 		Tracking: req.Tracking,
 	}
-
-	// var protoItems []models.Items
-
-	// Iterate over the source data (protoItems) and append to the 'items' slice
 	for _, protoItem := range req.Items {
 		item := models.Items{
 			Sku:         protoItem.Sku,
 			Quantity:    protoItem.Quantity,
-			
-			// Discount:    protoItem.Discount,
-			// PreTaxTotal: protoItem.PreTaxTotal,
-			// Tax:         protoItem.Tax,
-			// Total:       protoItem.Total,
 		}
-
-		// Append the 'item' to the 'items' slice
 		dbInsert.Items = append(dbInsert.Items, item)
 	}
 
@@ -108,13 +96,10 @@ func (s *RPCServer) GetOrderDetails(ctx context.Context, req *pro.GetOrderReques
 	for _, val := range orders {
 		fmt.Println(val)
 	}
-	// Create a response with the order status
 	response := &pro.GetOrderResponse{}
 
 	return response, nil
 }
-
-
 func (s*RPCServer) UpdateOrderDetails(ctx context.Context,req *pro.UpdateOrderRequest)(*pro.UpdateOrderResponse, error){
 	dbInsert := &models.UpdateDetailsModel{
 		Customer_ID:  req.Customer_ID,
@@ -122,12 +107,6 @@ func (s*RPCServer) UpdateOrderDetails(ctx context.Context,req *pro.UpdateOrderRe
 		Quantity: req.Quantity,
 
 	}
-
-	
-
-	// Iterate over the source data (protoItems) and append to the 'items' slice
-	
-
 
 	value, err := OrderService.UpdateOrder(dbInsert)
 	response := &pro.UpdateOrderResponse{
@@ -148,10 +127,6 @@ func (s*RPCServer) AddOrderDetails(ctx context.Context,req *pro.UpdateOrderReque
 		Quantity: req.Quantity,
 
 	}
-
-	
-
-	// Iterate over the source data (protoItems) and append to the 'items' slice
 	
 
 

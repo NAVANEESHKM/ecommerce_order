@@ -34,7 +34,7 @@ func main() {
 		fmt.Printf("Failed to listen: %v", err)
 		return
 	}
-	s := grpc.NewServer() //get the pointer reference of the server
+	s := grpc.NewServer() 
 	pro.RegisterOrderServiceServer(s, &controller.RPCServer{})
 
 	fmt.Println("Server listening on", constants.Port)

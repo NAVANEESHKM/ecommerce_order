@@ -1,4 +1,3 @@
-// define all the constants that we will use in the application.
 
 package constants
 
