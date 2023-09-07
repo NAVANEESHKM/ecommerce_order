@@ -27,7 +27,7 @@ func main() {
 
 	client := pb.NewOrderServiceClient(conn)
 	// _, err1 := client.CreateOrder(context.Background(), &pb.CustomerOrder{
-	// 	CustomerId:    97,
+	// 	CustomerId:    "11",
 	// 	PaymentId:     "your_payment_id",
 	// 	PaymentStatus: "your_payment_status",
 	// 	Status:        "your_status",
@@ -35,17 +35,17 @@ func main() {
 	// 	Items:[]*pb.Items{
 	// 		{
 	// 			Sku:         "SKU002",
-	// 			Quantity:    "5",
+	// 			Quantity:    5,
 				
 	// 			// Discount:    5.67,  // Your discount value
 	// 			// PreTaxTotal: 18.01, // Your pre-tax total value
 	// 			// Tax:         1.23,  // Your tax value
 	// 			// Total:       19.24, // Your total value
 	// 		},
-	// 		{
-	// 			Sku:         "SKU001",
-	// 			Quantity:    "3",
-	// 		},
+	// 		// {
+	// 		// 	Sku:         "SKU001",
+	// 		// 	Quantity:    3,
+	// 		// },
 	// 		// Add more items if needed
 	// 	},
 	// 	Shipping: []*pb.Shipping{
@@ -91,22 +91,22 @@ func main() {
 	// 	c.JSON(http.StatusOK, gin.H{"value": response})
 	// })
 
-	// _, err1 := client.UpdateOrderDetails(context.Background(), &pb.UpdateOrderRequest{
-	// 	       Customer_ID:    97,
-	// 			Sku:         "SKU001",
-	// 			Quantity:    "2",
+	_, err1 := client.UpdateOrderDetails(context.Background(), &pb.UpdateOrderRequest{
+		       Customer_ID:    "11",
+				Sku:         "SKU002",
+				Quantity:    7,
 		
-	// 		// Add more items if needed
-	// 	})
+			// Add more items if needed
+		})
 
 
-		_, err1 := client.AddOrderDetails(context.Background(), &pb.UpdateOrderRequest{
-			Customer_ID:    97,
-			 Sku:         "SKU002",
-			 Quantity:    "7",
+	// 	_, err1 := client.AddOrderDetails(context.Background(), &pb.UpdateOrderRequest{
+	// 		Customer_ID:   "97",
+	// 		 Sku:         "SKU002",
+	// 		 Quantity:    7.0,
 	 
-		 // Add more items if needed
-	 })
+	// 	 // Add more items if needed
+	//  })
 
 
 

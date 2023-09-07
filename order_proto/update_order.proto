@@ -7,9 +7,9 @@ option go_package="https://github.com/NAVANEESHKM/ecommerce_order";
 
 
 message UpdateOrderRequest{
-    int32 Customer_ID=1;
+    string Customer_ID=1;
     string Sku =2;
-    string Quantity=3;
+    float Quantity=3;
     // repeated Shipping Shipping=3;
 }
 // message Shipping {

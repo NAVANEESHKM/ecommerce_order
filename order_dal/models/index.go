@@ -1,7 +1,7 @@
 package models
 
 type Orders struct {
-    CustomerId    int32            `json:"customerid" bson:"customerid"`
+    CustomerId    string            `json:"customerid" bson:"customerid"`
     PaymentId     string             `json:"payment_id" bson:"payment_id" `
     PaymentStatus string             `json:"paymentstatus" bson:"paymentstatus"`
     Status        string             `json:"status" bson:"status"`
@@ -18,7 +18,7 @@ type Shipping struct {
 }
 type Items struct{
 	Sku string `json:"sku" bson:"sku"`
-	Quantity string `json:"quantity" bson:"quantity"`
+	Quantity float32 `json:"quantity" bson:"quantity"`
 	Price float32 `json:"price" bson:"price"`
 	Discount float32 `json:"discount" bson:"discount"`
 	PreTaxTotal float32 `json:"pretaxtotal" bson:"pretaxtotal"`
@@ -43,9 +43,9 @@ type Origin struct {
     Zip     string `json:"zip" bson:"zip"`
 }
 type UpdateDetailsModel struct{
-        Customer_ID int32 `json:"customer_id" bson:"customer_id"`
+        Customer_ID string `json:"customer_id" bson:"customer_id"`
         Sku string `json:"sku" bson:"sku"`
-        Quantity string `json:"quantity" bson:"quantity"`
+        Quantity float32 `json:"quantity" bson:"quantity"`
         Price float32 `json:"price" bson:"price"`
         Discount float32 `json:"discount" bson:"discount"`
 	    PreTaxTotal float32 `json:"pretaxtotal" bson:"pretaxtotal"`

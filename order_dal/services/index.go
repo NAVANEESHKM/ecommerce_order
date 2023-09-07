@@ -5,11 +5,12 @@ import (
 	"ecommerce_order/order_dal/interfaces"
 	"ecommerce_order/order_dal/models"
 	"fmt"
+	"log"
+	// "strconv"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"log"
-	"strconv"
 )
 
 type CustomerService struct {
@@ -33,26 +34,20 @@ func (p *CustomerService) CreateOrder(input *models.Orders) (models.Orders, erro
 		if err := inventoryResult.Decode(&inventoryDocument); err != nil {
 			return models.Orders{}, err
 		}
-		num, err := strconv.ParseFloat(val.Quantity, 32) 
-		if err != nil {
-			fmt.Println("Conversion error:", err)
-
-		}
-		num32 := float32(num)
 		price := inventoryDocument["price"].(bson.M)
 		quantity := inventoryDocument["quantity"].(float64)
-		if quantity < float64(num32) {
+		if quantity < float64(val.Quantity) {
 			fmt.Println("Lack of Quantity")
-			return models.Orders{}, err
+			return models.Orders{}, nil
 		}
 		price64 := price["base"].(float64)
 		discount := price["discount"].(float64)
 		basePrice = float32(price64)
 		discountvalue = float32(discount)
 		fmt.Println(price64, discount, basePrice)
-		input.Items[i].Price = num32 * basePrice
-		input.Items[i].Discount =discountvalue
-		input.Items[i].PreTaxTotal=input.Items[i].Price - ((discountvalue / 100) * 100)
+		input.Items[i].Price = val.Quantity * basePrice
+		input.Items[i].Discount = discountvalue
+		input.Items[i].PreTaxTotal = input.Items[i].Price - ((discountvalue / 100) * 100)
 		input.Items[i].Total = input.Items[i].PreTaxTotal
 		fmt.Println(val.Price, val.Discount)
 	}
@@ -71,7 +66,7 @@ func (p *CustomerService) CreateOrder(input *models.Orders) (models.Orders, erro
 	fmt.Println("Success")
 	return result, nil
 }
-func (p *CustomerService) RemoveOrder(Customer_ID int32) (string, error) {
+func (p *CustomerService) RemoveOrder(Customer_ID string) (string, error) {
 	filter := bson.M{"customerid": Customer_ID}
 	_, err := p.OrderCollection.DeleteOne(p.ctx, filter)
 	if err != nil {
@@ -79,7 +74,7 @@ func (p *CustomerService) RemoveOrder(Customer_ID int32) (string, error) {
 	}
 	return "Deleted Successfully", nil
 }
-func (p *CustomerService) GetAllOrder(CustomerId int32) ([]models.Orders, error) {
+func (p *CustomerService) GetAllOrder(CustomerId string) ([]models.Orders, error) {
 	filter := bson.M{"customerid": CustomerId}
 	cursor, err := p.OrderCollection.Find(context.Background(), filter)
 	if err != nil {
@@ -109,20 +104,20 @@ func (p *CustomerService) UpdateOrder(input *models.UpdateDetailsModel) (string,
 	inventoryResult := p.InventoryCollection.FindOne(p.ctx, filter)
 	var inventoryDocument bson.M
 	if err := inventoryResult.Decode(&inventoryDocument); err != nil {
-
+		return "Empty", err
 	}
 	price := inventoryDocument["price"].(bson.M)
+	quantity := inventoryDocument["quantity"].(float64)
+		if quantity < float64(input.Quantity) {
+			fmt.Println("Lack of Quantity")
+			return "Empty", nil
+		}
 	price64 := price["base"].(float64)
 	discount := price["discount"].(float64)
 	discountvalue = float32(discount)
 	basePrice = float32(price64)
 	fmt.Println("The Price is ", basePrice)
-	num, err := strconv.ParseFloat(input.Quantity, 32)
-	if err != nil {
-		fmt.Println("Conversion error:", err)
-	}
-	num32 := float32(num)
-	input.Price = num32 * basePrice
+	input.Price = input.Quantity * basePrice
 	input.Discount = input.Price - ((discountvalue / 100) * 100)
 	input.Total = input.Discount
 	filter1 := bson.M{"customerid": input.Customer_ID}
@@ -155,21 +150,22 @@ func (p *CustomerService) AddOrder(input *models.UpdateDetailsModel) (string, er
 	inventoryResult := p.InventoryCollection.FindOne(p.ctx, filter)
 	var inventoryDocument bson.M
 	if err := inventoryResult.Decode(&inventoryDocument); err != nil {
+		return "Empty", err
 	}
 	price := inventoryDocument["price"].(bson.M)
+	quantity := inventoryDocument["quantity"].(float64)
+		if quantity < float64(input.Quantity) {
+			fmt.Println("Lack of Quantity")
+			return "Empty", nil
+		}
 	price64 := price["base"].(float64)
 	discount := price["discount"].(float64)
 	discountvalue = float32(discount)
 	basePrice = float32(price64)
 	fmt.Println("The Price is ", basePrice)
-	num, err := strconv.ParseFloat(input.Quantity, 32)
-	if err != nil {
-		fmt.Println("Conversion error:", err)
-	}
-	num32 := float32(num)
-	fmt.Println("The quantity is ", num32)
-	fmt.Println("The two values are ", num32, " ", basePrice)
-	input.Price = num32 * basePrice
+	fmt.Println("The quantity is ", input.Quantity)
+	fmt.Println("The two values are ", input.Quantity, " ", basePrice)
+	input.Price = input.Quantity * basePrice
 	input.Discount = input.Price - ((discountvalue / 100) * 100)
 	input.Total = input.Discount
 	itemsToAdd := []models.Items{
@@ -185,7 +181,7 @@ func (p *CustomerService) AddOrder(input *models.UpdateDetailsModel) (string, er
 	update := bson.M{
 		"$push": bson.M{
 			"items": bson.M{
-				"$each": itemsToAdd, 
+				"$each": itemsToAdd,
 			},
 		},
 	}
