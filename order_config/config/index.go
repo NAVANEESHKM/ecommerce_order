@@ -32,3 +32,4 @@ func GetCollection(client *mongo.Client,dbName string,collectionName string) *mo
 	collection := client.Database(dbName).Collection(collectionName)
 	return collection
 }
+
