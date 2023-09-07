@@ -6,6 +6,7 @@ import (
 	"ecommerce_order/order_dal/models"
 	"fmt"
 	"log"
+
 	// "strconv"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -27,6 +28,7 @@ func InitCustomerService(client *mongo.Client, collection1 *mongo.Collection, co
 func (p *CustomerService) CreateOrder(input *models.Orders) (models.Orders, error) {
 	var basePrice float32
 	var discountvalue float32
+	var total float32
 	for i, val := range input.Items {
 		filter := bson.M{"sku": val.Sku}
 		inventoryResult := p.InventoryCollection.FindOne(p.ctx, filter)
@@ -48,9 +50,11 @@ func (p *CustomerService) CreateOrder(input *models.Orders) (models.Orders, erro
 		input.Items[i].Price = val.Quantity * basePrice
 		input.Items[i].Discount = discountvalue
 		input.Items[i].PreTaxTotal = input.Items[i].Price - ((discountvalue / 100) * 100)
+		total = total + input.Items[i].PreTaxTotal
 		input.Items[i].Total = input.Items[i].PreTaxTotal
 		fmt.Println(val.Price, val.Discount)
 	}
+	input.TotalAmount = total
 	insertResult, err1 := p.OrderCollection.InsertOne(p.ctx, &input)
 	if err1 != nil {
 
@@ -100,6 +104,7 @@ func (p *CustomerService) GetAllOrder(CustomerId string) ([]models.Orders, error
 func (p *CustomerService) UpdateOrder(input *models.UpdateDetailsModel) (string, error) {
 	var basePrice float32
 	var discountvalue float32
+	var total float32
 	filter := bson.M{"sku": input.Sku}
 	inventoryResult := p.InventoryCollection.FindOne(p.ctx, filter)
 	var inventoryDocument bson.M
@@ -108,29 +113,35 @@ func (p *CustomerService) UpdateOrder(input *models.UpdateDetailsModel) (string,
 	}
 	price := inventoryDocument["price"].(bson.M)
 	quantity := inventoryDocument["quantity"].(float64)
-		if quantity < float64(input.Quantity) {
-			fmt.Println("Lack of Quantity")
-			return "Empty", nil
-		}
+	if quantity < float64(input.Quantity) {
+		fmt.Println("Lack of Quantity")
+		return "Empty", nil
+	}
 	price64 := price["base"].(float64)
 	discount := price["discount"].(float64)
 	discountvalue = float32(discount)
 	basePrice = float32(price64)
 	fmt.Println("The Price is ", basePrice)
 	input.Price = input.Quantity * basePrice
-	input.Discount = input.Price - ((discountvalue / 100) * 100)
-	input.Total = input.Discount
+	input.Discount = discountvalue
+	input.PreTaxTotal = input.Price - ((discountvalue / 100) * 100)
+	total =input.PreTaxTotal
+	input.TotalAmount = total
+	input.Total = input.PreTaxTotal
 	filter1 := bson.M{"customerid": input.Customer_ID}
 	update := bson.M{
 		"$set": bson.M{
-
+			"totalamount":models.Orders{
+				 TotalAmount: input.TotalAmount,
+			},
 			"items": []models.Items{
 				{
-					Sku:      input.Sku,
+					Sku: input.Sku,
 					Quantity: input.Quantity,
-					Price:    input.Price,
+					Price: input.Price,
 					Discount: input.Discount,
-					Total:    input.Total,
+					PreTaxTotal: total,
+					Total:       input.Total,
 				},
 			},
 		},
@@ -146,6 +157,7 @@ func (p *CustomerService) UpdateOrder(input *models.UpdateDetailsModel) (string,
 func (p *CustomerService) AddOrder(input *models.UpdateDetailsModel) (string, error) {
 	var basePrice float32
 	var discountvalue float32
+	var total float32
 	filter := bson.M{"sku": input.Sku}
 	inventoryResult := p.InventoryCollection.FindOne(p.ctx, filter)
 	var inventoryDocument bson.M
@@ -154,10 +166,10 @@ func (p *CustomerService) AddOrder(input *models.UpdateDetailsModel) (string, er
 	}
 	price := inventoryDocument["price"].(bson.M)
 	quantity := inventoryDocument["quantity"].(float64)
-		if quantity < float64(input.Quantity) {
-			fmt.Println("Lack of Quantity")
-			return "Empty", nil
-		}
+	if quantity < float64(input.Quantity) {
+		fmt.Println("Lack of Quantity")
+		return "Empty", nil
+	}
 	price64 := price["base"].(float64)
 	discount := price["discount"].(float64)
 	discountvalue = float32(discount)
@@ -166,8 +178,11 @@ func (p *CustomerService) AddOrder(input *models.UpdateDetailsModel) (string, er
 	fmt.Println("The quantity is ", input.Quantity)
 	fmt.Println("The two values are ", input.Quantity, " ", basePrice)
 	input.Price = input.Quantity * basePrice
-	input.Discount = input.Price - ((discountvalue / 100) * 100)
-	input.Total = input.Discount
+	input.Discount = discountvalue
+	input.PreTaxTotal = input.Price - ((discountvalue / 100) * 100)
+	total = total + input.PreTaxTotal+input.TotalAmount
+	input.TotalAmount = total
+	input.Total = input.PreTaxTotal
 	itemsToAdd := []models.Items{
 		{
 			Sku:      input.Sku,
@@ -175,16 +190,19 @@ func (p *CustomerService) AddOrder(input *models.UpdateDetailsModel) (string, er
 			Price:    input.Price,
 			Discount: input.Discount,
 			Total:    input.Total,
+
 		},
 	}
 	filter1 := bson.M{"customerid": input.Customer_ID}
 	update := bson.M{
+		
 		"$push": bson.M{
 			"items": bson.M{
 				"$each": itemsToAdd,
 			},
 		},
-	}
+		
+}
 	_, err1 := p.OrderCollection.UpdateOne(context.Background(), filter1, update)
 	if err1 != nil {
 		return "updation failed", err1

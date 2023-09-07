@@ -13,9 +13,10 @@ message CustomerOrder{
     string Status=5;
     string Currency=6;
     repeated Items Items=7;
-    repeated Shipping Shipping=8;
-    string Carrier=9;
-    string Tracking=10;
+    float TotalAmount=8;
+    repeated Shipping Shipping=9;
+    string Carrier=10;
+    string Tracking=11;
 }
 message Shipping {
     repeated Address Address=1;

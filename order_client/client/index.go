@@ -5,7 +5,7 @@ import (
 	// "fmt"
 
 	"log"
-	"net/http"
+	// "net/http"
 	// models "ecommerce_order/order_dal/models"
 	pb "ecommerce_order/order_proto"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -19,7 +19,7 @@ var (
 )
 func main() {
     // r := gin.Default()
-	r := gin.Default()
+	// r := gin.Default()
     conn, err := grpc.Dial("localhost:5001", grpc.WithInsecure())
     if err != nil {
         log.Fatalf("Failed to connect: %v", err)
@@ -27,27 +27,27 @@ func main() {
     defer conn.Close()
 
     client := pb.NewOrderServiceClient(conn)
-    r.POST("/createorder", func(c *gin.Context) {
-        var request pb.CustomerOrder
-        if err := c.ShouldBindJSON(&request); err != nil {
-            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-            return
-        }
-        response, err := client.CreateOrder(c.Request.Context(), &request)
-        if err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-            return
-        }
-        c.JSON(http.StatusOK, gin.H{"value": response})
-    })
+    // r.POST("/createorder", func(c *gin.Context) {
+    //     var request pb.CustomerOrder
+    //     if err := c.ShouldBindJSON(&request); err != nil {
+    //         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+    //         return
+    //     }
+    //     response, err := client.CreateOrder(c.Request.Context(), &request)
+    //     if err != nil {
+    //         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+    //         return
+    //     }
+    //     c.JSON(http.StatusOK, gin.H{"value": response})
+    // })
 
 	
 
 
 
-    r.Run(":8080")
+    // r.Run(":8080")
 	// _, err1 := client.CreateOrder(context.Background(), &pb.CustomerOrder{
-	// 	CustomerId:    "11",
+	// 	CustomerId:    "15",
 	// 	PaymentId:     "your_payment_id",
 	// 	PaymentStatus: "your_payment_status",
 	// 	Status:        "your_status",
@@ -62,11 +62,11 @@ func main() {
 	// 			// Tax:         1.23,  // Your tax value
 	// 			// Total:       19.24, // Your total value
 	// 		},
-	// 		// {
-	// 		// 	Sku:         "SKU001",
-	// 		// 	Quantity:    3,
-	// 		// },
-	// 		// Add more items if needed
+	// 		{
+	// 			Sku:         "SKU001",
+	// 			Quantity:    3,
+	// 		},
+		
 	// 	},
 	// 	Shipping: []*pb.Shipping{
 	// 		{
@@ -120,13 +120,13 @@ func main() {
 	// 	})
 
 
-	// 	_, err1 := client.AddOrderDetails(context.Background(), &pb.UpdateOrderRequest{
-	// 		Customer_ID:   "97",
-	// 		 Sku:         "SKU002",
-	// 		 Quantity:    7.0,
+		_, err1 := client.AddOrderDetails(context.Background(), &pb.UpdateOrderRequest{
+			Customer_ID:   "15",
+			 Sku:         "SKU002",
+			 Quantity:    2.0,
 	 
-	// 	 // Add more items if needed
-	//  })
+		 // Add more items if needed
+	 })
 
 
 
@@ -166,8 +166,8 @@ func main() {
 	// 	_, err1 := client.GetOrderDetails(context.Background(), &pb.GetOrderRequest{
 	// 	CustomerId:76,
 	// })
-	// if err1 != nil {
-	// 	log.Fatalf("Failed to call SayHello: %v", err1)
-	// }
+	if err1 != nil {
+		log.Fatalf("Failed to call SayHello: %v", err1)
+	}
 	// r.Run(":8080")
 }
